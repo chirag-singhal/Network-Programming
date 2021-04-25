@@ -204,10 +204,15 @@ void time_select(int N, int num_fd, int sockfd) {
         for(int i = 0; i < num_fd; i++) {
             if (FD_ISSET(fds[i], &rset)){
                 memset(buffer, 0, MAX_BUFF);
-                if(recv(fds[i], buffer, MAX_BUFF, 0) == -1)
+                int num_read;
+                if((num_read = recv(fds[i], buffer, MAX_BUFF, 0)) == -1)
                     err_exit("Error in reading in server. Exiting....\n");
-                read_fds[i] = 1;
-                num_of_recv++;
+                if(num_read == 0) {
+                    read_fds[i] = 1;
+                    close(fds[i]);
+                }
+                else 
+                    num_of_recv++;
             }
         }	
     }
